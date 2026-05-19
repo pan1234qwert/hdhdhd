@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>尤諾 Galagame(DEMO)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0619;
+            color: #e0d4ff;
+            font-family: 'Noto Sans TC', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            width: 960px;
+            height: 620px;
+            border: 6px solid #6b5fa8;
+            border-radius: 16px;
+            background: #1a1433;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+        }
+        
+        .background {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url('https://image-assets.mihuashi.com/2017/09/01/11/lmzd9uaqfaizxja03b3vo8cepfnjaomd/lmzd9uaqfaizxja03b3vo8cepfnjaomd.jpg') center/cover no-repeat;
+            filter: brightness(0.75) contrast(1.1);
+            z-index: 1;
+        }
+        
+        .character {
+            position: absolute;
+            bottom: 20px;
+            right: 70px;
+            height: 500px;
+            z-index: 5;
+            transition: transform 0.3s ease;
+        }
+        
+        .dialogue-box {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 82%;
+            background: rgba(25, 20, 55, 0.92);
+            border: 3px solid #8b7fd6;
+            border-radius: 12px;
+            padding: 22px 28px;
+            z-index: 10;
+        }
+        
+        .name-tag {
+            position: absolute;
+            top: -16px;
+            left: 35px;
+            background: #4a3d8a;
+            padding: 6px 22px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .dialogue-text {
+            font-size: 21px;
+            line-height: 1.6;
+            min-height: 75px;
+        }
+        
+        .choices {
+            position: absolute;
+            bottom: 145px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 15;
+        }
+        
+        .choice-btn {
+            background: #2a2350;
+            border: 2px solid #8b7fd6;
+            color: #e0d4ff;
+            padding: 13px 25px;
+            border-radius: 8px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 420px;
+        }
+        
+        .choice-btn:hover {
+            background: #3f2f7a;
+            border-color: #b8a8ff;
+            transform: translateY(-3px);
+        }
+        
+        .affection-bar {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: rgba(30,25,60,0.92);
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 2px solid #8b7fd6;
+            z-index: 20;
+            font-size: 15px;
+        }
+        
+        .status {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            background: rgba(30,25,60,0.92);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid #8b7fd6;
+            z-index: 20;
+        }
+        
+        .title-screen, .ending-screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 6, 25, 0.96);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .big-title {
+            font-size: 42px;
+            font-weight: 700;
+            color: #b8a8ff;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            margin-top: 30px;
+            padding: 12px 40px;
+            font-size: 20px;
+            background: #4a3d8a;
+            border: 2px solid #b8a8ff;
+            border-radius: 8px;
+            color: #e0d4ff;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #5f4eb0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="game">
+        <div class="background"></div>
+        <img src="https://static.wikia.nocookie.net/wutheringwaves/images/2/20/Iuno_Full_Sprite.png/revision/latest/smart/width/300/height/300?cb=20250909182139"
+             id="character-img"
+             class="character" 
+             alt="尤諾">
+        <div class="status" id="day-counter">第 <span id="day">1</span> 次相遇</div>  
+        <div class="affection-bar">
+            對尤諾的好感度 <span id="affection">❤️❤️❤️♡♡</span>
+        </div>       
+        <div class="dialogue-box" id="dialogue-box">
+            <div class="name-tag" id="name">尤諾</div>
+            <div class="dialogue-text" id="dialogue-text">
+                拉普拉斯學長…你來了。
+            </div>
+        </div>
+        <div class="choices" id="choices"></div>  
+        <div class="title-screen" id="title-screen">
+            <div class="big-title">尤諾 Galagame DEMO</div>
+            <h2 style="color:#b8a8ff; margin-bottom:20px;"></h2>
+            <p style="color:#a0a0ff; margin-bottom:30px;"></p>
+            <button onclick="startGame()">開始遊戲</button>
+        </div>
+        <div class="ending-screen" id="ending-screen" style="display:none;">
+            <div class="big-title" id="ending-title">完美結局</div>
+            <p id="ending-text" style="font-size:22px; margin:30px; max-width:520px; text-align:center; line-height:1.7;"></p>
+            <button onclick="restartGame()">好喔</button>
+        </div>
+    </div>
+
+    <script>
+        let currentScene = 0;
+        let affection = 35;
+        let day = 1;
+        
+        const scenes = [
+            {
+                name: "尤諾",
+                text: "拉普拉斯學長…你來了。我一直都在等你。",
+                choices: [
+                    { text: "抱歉讓你久等了", affection: 18, next: 1 },
+                    { text: "尤諾真好看", affection: 25, next: 1 },
+                    { text: "我只是順道過來", affection: -8, next: 2 }
+                ]
+            },
+            {
+                name: "尤諾",
+                text: "呵呵…學長這樣說，我有點害羞呢。要不要一起走走？",
+                choices: [
+                    { text: "好啊，我很願意", affection: 22, next: 3 },
+                    { text: "今天想做什麼？", affection: 12, next: 4 }
+                ]
+            },
+            {
+                name: "尤諾",
+                text: "沒關係…我還是想多跟拉普拉斯學長聊聊。",
+                choices: [{ text: "對不起，讓我們重新開始", affection: 15, next: 1 }]
+            },
+            {
+                name: "尤諾",
+                text: "拉普拉斯學長，猜猜我最喜歡什麼顏色？",
+                choices: [
+                    { text: "藍色，就像你的眼睛", affection: 25, next: 5 },
+                    { text: "金色，和你很配", affection: 15, next: 5 },
+                    { text: "我不知道", affection: 5, next: 5 }
+                ]
+            },
+            {
+                name: "尤諾",
+                text: "學長真的很懂我…心裡暖暖的。",
+                choices: [{ text: "繼續陪你吧", affection: 20, next: 6 }]
+            },
+            {
+                name: "尤諾",
+                text: "跟拉普拉斯學長在一起，時間好像都變慢了…學長也是這樣想的嗎？",
+                choices: [
+                    { text: "我也很喜歡跟你在一起", affection: 28, next: 7 },
+                    { text: "很開心", affection: 18, next: 7 }
+                ]
+            },
+            {
+                name: "尤諾",
+                text: "謝謝學長一直陪著我。",
+                choices: [
+                    { text: "我想一直陪在你身邊", affection: 30, next: 8 },
+                    { text: "我會保護你的", affection: 25, next: 8 }
+                ]
+            },
+            {
+                name: "尤諾",
+                text: "拉普拉斯學長…我們一起走下去，好嗎？",
+                choices: [{ text: "嗯，永遠在一起", affection: 999, next: "end" }]
+            }
+        ];
+        
+        function startGame() {
+            document.getElementById('title-screen').style.display = 'none';
+            currentScene = 0;
+            affection = 35;
+            day = 1;
+            updateAffection();
+            showScene(0);
+        }
+        
+        function updateAffection() {
+            let hearts = "";
+            const full = Math.floor(affection / 20);
+            for (let i = 0; i < 5; i++) hearts += i < full ? "❤️" : "♡";
+            document.getElementById('affection').innerHTML = hearts;
+        }
+        
+        function showScene(sceneIndex) {
+            if (sceneIndex === "end") return showEnding();
+            
+            const scene = scenes[sceneIndex];
+            currentScene = sceneIndex;
+            
+            document.getElementById('name').textContent = scene.name;
+            document.getElementById('dialogue-text').innerHTML = scene.text;
+            
+            const choicesDiv = document.getElementById('choices');
+            choicesDiv.innerHTML = '';
+            
+            scene.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = choice.text;
+                btn.onclick = () => {
+                    affection = Math.min(100, Math.max(0, affection + choice.affection));
+                    updateAffection();
+                    day++;
+                    document.getElementById('day').textContent = day;
+                    
+                    const char = document.getElementById('character-img');
+                    char.style.transform = 'scale(1.05)';
+                    setTimeout(() => char.style.transform = 'scale(1)', 200);
+                    
+                    showScene(choice.next);
+                };
+                choicesDiv.appendChild(btn);
+            });
+        }
+        
+        function showEnding() {
+            const ending = document.getElementById('ending-screen');
+            const title = document.getElementById('ending-title');
+            const text = document.getElementById('ending-text');
+            
+            if (affection > 90) {
+                title.textContent = "結局1";
+                text.innerHTML = `尤諾輕輕靠在拉普拉斯學長懷裡，小聲說道：<br><br>「以後…我的時間只屬於學長一個人。」`;
+            } else if (affection > 60) {
+                title.textContent = "結局2";
+                text.textContent = "尤諾微笑著答應繼續和拉普拉斯學長相處。";
+            } else {
+                title.textContent = "結局3";
+                text.textContent = "尤諾害羞地接受了拉普拉斯學長的心意。";
+            }
+            ending.style.display = 'flex';
+        }
+        
+        function restartGame() {
+            document.getElementById('ending-screen').style.display = 'none';
+            document.getElementById('title-screen').style.display = 'flex';
+        }
+        
+        console.log("%c尤諾 Galagame 已修正並載入成功", "color:#b8a8ff");
+    </script>
+</body>
+</html>
